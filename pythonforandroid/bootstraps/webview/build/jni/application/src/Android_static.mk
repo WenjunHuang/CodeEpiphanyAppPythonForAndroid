@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := LOCAL_MODULE
+LOCAL_MODULE := pythonmain
 
 LOCAL_SRC_FILES := YourSourceHere.c
 
