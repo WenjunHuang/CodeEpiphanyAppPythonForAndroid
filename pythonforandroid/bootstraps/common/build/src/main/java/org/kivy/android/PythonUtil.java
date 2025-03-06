@@ -56,7 +56,7 @@ public class PythonUtil {
         libsList.add("python3.9");
         libsList.add("python3.10");
         libsList.add("python3.11");
-        libsList.add("main");
+        libsList.add("pythonmain");
         return libsList;
     }
 
@@ -90,7 +90,7 @@ public class PythonUtil {
     }
 
     public static String getAppRoot(Context ctx) {
-        String appRoot = ctx.getFilesDir().getAbsolutePath() + "/app";
+        String appRoot = ctx.getFilesDir().getAbsolutePath() + "/language_servers/python";
         return appRoot;
     }
 

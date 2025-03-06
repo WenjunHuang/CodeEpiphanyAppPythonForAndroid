@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := main
+LOCAL_MODULE := pythonmain
 
 SDL_PATH := ../../SDL
 
