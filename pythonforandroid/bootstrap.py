@@ -392,7 +392,6 @@ class Bootstrap:
         info('Frying eggs in {}'.format(sitepackages))
         for d in listdir(sitepackages):
             rd = join(sitepackages, d)
-            info(' found ' + d)
             if isdir(rd) and d.endswith('.egg'):
                 info('  ' + d)
                 files = [join(rd, f) for f in listdir(rd) if f != 'EGG-INFO']
