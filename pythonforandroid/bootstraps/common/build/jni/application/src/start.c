@@ -224,28 +224,24 @@ int main(int argc, char *argv[]) {
   }
 
   PyRun_SimpleString(
-      "class LogFile(io.IOBase):\n"
-      "    def __init__(self):\n"
-      "        self.__buffer = ''\n"
-      "    def readable(self):\n"
-      "        return False\n"
-      "    def writable(self):\n"
-      "        return True\n"
-      "    def write(self, s):\n"
-      "        s = self.__buffer + s\n"
-      "        lines = s.split('\\n')\n"
-      "        for l in lines[:-1]:\n"
-      "            androidembed.log(l.replace('\\x00', ''))\n"
-      "        self.__buffer = lines[-1]\n"
-      "sys.stdout = sys.stderr = LogFile()\n"
-      "print('Android path', sys.path)\n"
+//      "class LogFile(io.IOBase):\n"
+//      "    def __init__(self):\n"
+//      "        self.__buffer = ''\n"
+//      "    def readable(self):\n"
+//      "        return False\n"
+//      "    def writable(self):\n"
+//      "        return True\n"
+//      "    def write(self, s):\n"
+//      "        s = self.__buffer + s\n"
+//      "        lines = s.split('\\n')\n"
+//      "        for l in lines[:-1]:\n"
+//      "            androidembed.log(l.replace('\\x00', ''))\n"
+//      "        self.__buffer = lines[-1]\n"
+//      "sys.stdout = sys.stderr = LogFile()\n"
+      "print('Android path', sys.path,file=sys.stderr)\n"
       "import os\n"
-      "print('os.environ is', os.environ)\n"
-      "print('Android kivy bootstrap done. __name__ is', __name__)");
-
-#if PY_MAJOR_VERSION < 3
-  PyRun_SimpleString("import site; print site.getsitepackages()\n");
-#endif
+      "print('os.environ is', os.environ,file=sys.stderr)\n"
+      "print('Android kivy bootstrap done. __name__ is', __name__,file=sys.stderr)");
 
   LOGP("AND: Ran string");
 
