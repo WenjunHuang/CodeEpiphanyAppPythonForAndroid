@@ -316,6 +316,8 @@ main.py that loads it.''')
                     byte_compile_python=args.byte_compile_python,
                     optimize_python=args.optimize_python,
                 )
+                # rename file
+                shutil.move(join(libs_dir, "pythonmain"),join(libs_dir, "libpythonmain.so"))
             # make_tar(
             #     join(assets_dir, "private.tar"),
             #     private_tar_dirs,
