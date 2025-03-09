@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
   LOGP("Initializing Python for Android");
 
   // Set a couple of built-in environment vars:
+  setenv("P4A_BOOTSTRAP", bootstrap_name, 1);  // env var to identify p4a to applications
   env_argument = getenv("ANDROID_ARGUMENT");
   setenv("ANDROID_APP_PATH", env_argument, 1);
   env_entrypoint = getenv("ANDROID_ENTRYPOINT");
@@ -95,6 +96,49 @@ int main(int argc, char *argv[]) {
     env_logname = "python";
     setenv("PYTHON_NAME", "python", 1);
   }
+
+  // Set additional file-provided environment vars:
+//  LOGP("Setting additional env vars from p4a_env_vars.txt");
+//  char env_file_path[256];
+//  snprintf(env_file_path, sizeof(env_file_path),
+//           "%s/p4a_env_vars.txt", getenv("ANDROID_UNPACK"));
+//  FILE *env_file_fd = fopen(env_file_path, "r");
+//  if (env_file_fd) {
+//    char* line = NULL;
+//    size_t len = 0;
+//    while (getline(&line, &len, env_file_fd) != -1) {
+//      if (strlen(line) > 0) {
+//        char *eqsubstr = strstr(line, "=");
+//        if (eqsubstr) {
+//          size_t eq_pos = eqsubstr - line;
+//
+//          // Extract name:
+//          char env_name[256];
+//          strncpy(env_name, line, sizeof(env_name));
+//          env_name[eq_pos] = '\0';
+//
+//          // Extract value (with line break removed:
+//          char env_value[256];
+//          strncpy(env_value, (char*)(line + eq_pos + 1), sizeof(env_value));
+//          if (strlen(env_value) > 0 &&
+//              env_value[strlen(env_value)-1] == '\n') {
+//            env_value[strlen(env_value)-1] = '\0';
+//            if (strlen(env_value) > 0 &&
+//                env_value[strlen(env_value)-1] == '\r') {
+//              // Also remove windows line breaks (\r\n)
+//              env_value[strlen(env_value)-1] = '\0';
+//            }
+//          }
+//
+//          // Set value:
+//          setenv(env_name, env_value, 1);
+//        }
+//      }
+//    }
+//    fclose(env_file_fd);
+//  } else {
+//    LOGP("Warning: no p4a_env_vars.txt found / failed to open!");
+//  }
 
   LOGP("Changing directory to the one provided by ANDROID_ARGUMENT");
   LOGP(env_argument);
@@ -144,10 +188,20 @@ int main(int argc, char *argv[]) {
            " recipes should have this folder, should we expect a crash soon?");
   }
 
-  PyConfig config;
-  PyConfig_InitPythonConfig(&config);
-  Py_InitializeFromConfig(&config);
+  Py_Initialize();
   LOGP("Initialized python");
+
+  /* ensure threads will work.
+   */
+  LOGP("AND: Init threads");
+  PyEval_InitThreads();
+
+#if PY_MAJOR_VERSION < 3
+  initandroidembed();
+#endif
+
+  PyRun_SimpleString("import androidembed\nandroidembed.log('testing python "
+                     "print redirection')");
 
   /* inject our bootstrap code to redirect python stdin/stdout
    * replace sys.path with our path
@@ -161,12 +215,29 @@ int main(int argc, char *argv[]) {
              "sys.path.append('%s/site-packages')",
              python_bundle_dir);
 
+    PyRun_SimpleString("import sys\n"
+                       "sys.argv = ['notaninterpreterreally']\n"
+                       "from os.path import realpath, join, dirname");
     PyRun_SimpleString(add_site_packages_dir);
     /* "sys.path.append(join(dirname(realpath(__file__)), 'site-packages'))") */
     PyRun_SimpleString("sys.path = ['.'] + sys.path");
   }
 
   PyRun_SimpleString(
+//      "class LogFile(io.IOBase):\n"
+//      "    def __init__(self):\n"
+//      "        self.__buffer = ''\n"
+//      "    def readable(self):\n"
+//      "        return False\n"
+//      "    def writable(self):\n"
+//      "        return True\n"
+//      "    def write(self, s):\n"
+//      "        s = self.__buffer + s\n"
+//      "        lines = s.split('\\n')\n"
+//      "        for l in lines[:-1]:\n"
+//      "            androidembed.log(l.replace('\\x00', ''))\n"
+//      "        self.__buffer = lines[-1]\n"
+//      "sys.stdout = sys.stderr = LogFile()\n"
       "print('Android path', sys.path,file=sys.stderr)\n"
       "import os\n"
       "print('os.environ is', os.environ,file=sys.stderr)\n"
@@ -177,10 +248,6 @@ int main(int argc, char *argv[]) {
   /* run it !
    */
   LOGP("Run user program, change dir and execute entrypoint");
-  PyRun_SimpleString(
-      "import os\n"
-      "os.environ['XDG_CACHE_HOME']=os.getenv('ANDROID_UNPACK')\n"
-      "os.environ['HOME']=os.getenv('ANDROID_UNPACK')");
 
   /* Get the entrypoint, search the .pyc then .py
    */
