@@ -278,8 +278,8 @@ int main(int argc, char *argv[]) {
     LOGP("Entrypoint have an invalid extension (must be .py or .pyc), abort.");
     return -1;
   }
-  // LOGP("Entrypoint is:");
-  // LOGP(entrypoint);
+  LOGP("Entrypoint is:");
+  LOGP(entrypoint);
   fd = fopen(entrypoint, "r");
   if (fd == NULL) {
     LOGP("Open the entrypoint failed");
