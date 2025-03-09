@@ -312,16 +312,16 @@ main.py that loads it.''')
                 libs_dir = f"libs/{arch}"
                 make_tar(
                     join(libs_dir, "libpybundle.so"),
-                    [f"_python_bundle__{arch}"],
+                    [f"_python_bundle__{arch}"] + private_tar_dirs,
                     byte_compile_python=args.byte_compile_python,
                     optimize_python=args.optimize_python,
                 )
-            make_tar(
-                join(assets_dir, "private.tar"),
-                private_tar_dirs,
-                byte_compile_python=args.byte_compile_python,
-                optimize_python=args.optimize_python,
-            )
+            # make_tar(
+            #     join(assets_dir, "private.tar"),
+            #     private_tar_dirs,
+            #     byte_compile_python=args.byte_compile_python,
+            #     optimize_python=args.optimize_python,
+            # )
     finally:
         for directory in _temp_dirs_to_clean:
             rmdir(directory)
