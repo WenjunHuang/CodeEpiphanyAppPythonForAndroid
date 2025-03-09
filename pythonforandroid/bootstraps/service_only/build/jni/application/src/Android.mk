@@ -2,8 +2,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := pythonmain
-
+LOCAL_MODULE := libpythonmain
+LOCAL_MODULE_SUFFIX := .so
 # Add your application source files here...
 LOCAL_SRC_FILES := start.c pyjniusjni.c
 
