@@ -285,6 +285,8 @@ int main(int argc, char *argv[]) {
     LOGP("Open the entrypoint failed");
     LOGP(entrypoint);
     return -1;
+  } else {
+    LOGP("Open the entrypoint succeeded");
   }
 
   /* run python !
