@@ -1,4 +1,3 @@
-
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
 #ifndef Py_PYTHON_H
@@ -98,47 +97,47 @@ int main(int argc, char *argv[]) {
   }
 
   // Set additional file-provided environment vars:
-//  LOGP("Setting additional env vars from p4a_env_vars.txt");
-//  char env_file_path[256];
-//  snprintf(env_file_path, sizeof(env_file_path),
-//           "%s/p4a_env_vars.txt", getenv("ANDROID_UNPACK"));
-//  FILE *env_file_fd = fopen(env_file_path, "r");
-//  if (env_file_fd) {
-//    char* line = NULL;
-//    size_t len = 0;
-//    while (getline(&line, &len, env_file_fd) != -1) {
-//      if (strlen(line) > 0) {
-//        char *eqsubstr = strstr(line, "=");
-//        if (eqsubstr) {
-//          size_t eq_pos = eqsubstr - line;
-//
-//          // Extract name:
-//          char env_name[256];
-//          strncpy(env_name, line, sizeof(env_name));
-//          env_name[eq_pos] = '\0';
-//
-//          // Extract value (with line break removed:
-//          char env_value[256];
-//          strncpy(env_value, (char*)(line + eq_pos + 1), sizeof(env_value));
-//          if (strlen(env_value) > 0 &&
-//              env_value[strlen(env_value)-1] == '\n') {
-//            env_value[strlen(env_value)-1] = '\0';
-//            if (strlen(env_value) > 0 &&
-//                env_value[strlen(env_value)-1] == '\r') {
-//              // Also remove windows line breaks (\r\n)
-//              env_value[strlen(env_value)-1] = '\0';
-//            }
-//          }
-//
-//          // Set value:
-//          setenv(env_name, env_value, 1);
-//        }
-//      }
-//    }
-//    fclose(env_file_fd);
-//  } else {
-//    LOGP("Warning: no p4a_env_vars.txt found / failed to open!");
-//  }
+  LOGP("Setting additional env vars from p4a_env_vars.txt");
+  char env_file_path[256];
+  snprintf(env_file_path, sizeof(env_file_path),
+           "%s/p4a_env_vars.txt", getenv("ANDROID_UNPACK"));
+  FILE *env_file_fd = fopen(env_file_path, "r");
+  if (env_file_fd) {
+    char* line = NULL;
+    size_t len = 0;
+    while (getline(&line, &len, env_file_fd) != -1) {
+      if (strlen(line) > 0) {
+        char *eqsubstr = strstr(line, "=");
+        if (eqsubstr) {
+          size_t eq_pos = eqsubstr - line;
+
+          // Extract name:
+          char env_name[256];
+          strncpy(env_name, line, sizeof(env_name));
+          env_name[eq_pos] = '\0';
+
+          // Extract value (with line break removed:
+          char env_value[256];
+          strncpy(env_value, (char*)(line + eq_pos + 1), sizeof(env_value));
+          if (strlen(env_value) > 0 &&
+              env_value[strlen(env_value)-1] == '\n') {
+            env_value[strlen(env_value)-1] = '\0';
+            if (strlen(env_value) > 0 &&
+                env_value[strlen(env_value)-1] == '\r') {
+              // Also remove windows line breaks (\r\n)
+              env_value[strlen(env_value)-1] = '\0';
+            } 
+          }
+
+          // Set value:
+          setenv(env_name, env_value, 1);
+        }
+      }
+    }
+    fclose(env_file_fd);
+  } else {
+    LOGP("Warning: no p4a_env_vars.txt found / failed to open!");
+  }
 
   LOGP("Changing directory to the one provided by ANDROID_ARGUMENT");
   LOGP(env_argument);
@@ -224,24 +223,28 @@ int main(int argc, char *argv[]) {
   }
 
   PyRun_SimpleString(
-//      "class LogFile(io.IOBase):\n"
-//      "    def __init__(self):\n"
-//      "        self.__buffer = ''\n"
-//      "    def readable(self):\n"
-//      "        return False\n"
-//      "    def writable(self):\n"
-//      "        return True\n"
-//      "    def write(self, s):\n"
-//      "        s = self.__buffer + s\n"
-//      "        lines = s.split('\\n')\n"
-//      "        for l in lines[:-1]:\n"
-//      "            androidembed.log(l.replace('\\x00', ''))\n"
-//      "        self.__buffer = lines[-1]\n"
-//      "sys.stdout = sys.stderr = LogFile()\n"
-      "print('Android path', sys.path,file=sys.stderr)\n"
+      "class LogFile(io.IOBase):\n"
+      "    def __init__(self):\n"
+      "        self.__buffer = ''\n"
+      "    def readable(self):\n"
+      "        return False\n"
+      "    def writable(self):\n"
+      "        return True\n"
+      "    def write(self, s):\n"
+      "        s = self.__buffer + s\n"
+      "        lines = s.split('\\n')\n"
+      "        for l in lines[:-1]:\n"
+      "            androidembed.log(l.replace('\\x00', ''))\n"
+      "        self.__buffer = lines[-1]\n"
+      "sys.stdout = sys.stderr = LogFile()\n"
+      "print('Android path', sys.path)\n"
       "import os\n"
-      "print('os.environ is', os.environ,file=sys.stderr)\n"
-      "print('Android kivy bootstrap done. __name__ is', __name__,file=sys.stderr)");
+      "print('os.environ is', os.environ)\n"
+      "print('Android kivy bootstrap done. __name__ is', __name__)");
+
+#if PY_MAJOR_VERSION < 3
+  PyRun_SimpleString("import site; print site.getsitepackages()\n");
+#endif
 
   LOGP("AND: Ran string");
 
@@ -413,7 +416,7 @@ void Java_org_kivy_android_PythonActivity_nativeInit(JNIEnv* env, jclass cls, jo
 {
   /* This nativeInit follows SDL2 */
 
-  /* This interface could expand with ABI negotiation, callbacks, etc. */
+  /* This interface could expand with ABI negotiation, calbacks, etc. */
   /* SDL_Android_Init(env, cls); */
 
   /* SDL_SetMainReady(); */
